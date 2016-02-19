@@ -6,16 +6,7 @@
 package cz.startnet.utils.pgdiff.loader;
 
 import cz.startnet.utils.pgdiff.Resources;
-import cz.startnet.utils.pgdiff.parsers.AlterSequenceParser;
-import cz.startnet.utils.pgdiff.parsers.AlterRelationParser;
-import cz.startnet.utils.pgdiff.parsers.CommentParser;
-import cz.startnet.utils.pgdiff.parsers.CreateFunctionParser;
-import cz.startnet.utils.pgdiff.parsers.CreateIndexParser;
-import cz.startnet.utils.pgdiff.parsers.CreateSchemaParser;
-import cz.startnet.utils.pgdiff.parsers.CreateSequenceParser;
-import cz.startnet.utils.pgdiff.parsers.CreateTableParser;
-import cz.startnet.utils.pgdiff.parsers.CreateTriggerParser;
-import cz.startnet.utils.pgdiff.parsers.CreateViewParser;
+import cz.startnet.utils.pgdiff.parsers.*;
 import cz.startnet.utils.pgdiff.schema.PgDatabase;
 import java.io.BufferedReader;
 import java.io.FileInputStream;
@@ -137,6 +128,21 @@ public class PgDumpLoader { //NOPMD
     private static final Pattern PATTERN_DOLLAR_TAG= Pattern.compile(
             "[\"\\s]",
             Pattern.CASE_INSENSITIVE | Pattern.DOTALL);
+
+    /**
+     * Pattern for testing whether it is GRANT statement.
+     */
+    private static final Pattern PATTERN_GRANT= Pattern.compile(
+            "^GRANT[\\s]+.*$",
+            Pattern.CASE_INSENSITIVE | Pattern.DOTALL);
+
+    /**
+     * Pattern for testing whether it is REVOKE statement.
+     */
+    private static final Pattern PATTERN_REVOKE= Pattern.compile(
+            "^REVOKE[\\s]+.*$",
+            Pattern.CASE_INSENSITIVE | Pattern.DOTALL);
+
     /**
      * Storage of unprocessed line part.
      */
@@ -203,10 +209,13 @@ public class PgDumpLoader { //NOPMD
             } else if (PATTERN_COMMENT.matcher(statement).matches()) {
                 CommentParser.parse(
                         database, statement, outputIgnoredStatements);
+            }  else if (PATTERN_GRANT.matcher(statement).matches()) {
+                GrantParser.parse(database, statement);
             } else if (PATTERN_SELECT.matcher(statement).matches()
                     || PATTERN_INSERT_INTO.matcher(statement).matches()
                     || PATTERN_UPDATE.matcher(statement).matches()
-                    || PATTERN_DELETE_FROM.matcher(statement).matches()) {
+                    || PATTERN_DELETE_FROM.matcher(statement).matches()
+                    || PATTERN_REVOKE.matcher(statement).matches()) {
                 // we just ignore these statements
             } else if (outputIgnoredStatements) {
                 database.addIgnoredStatement(statement);
