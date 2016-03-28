@@ -37,6 +37,8 @@ public class PgDiffTest {
     public static Collection<?> parameters() {
         return Arrays.asList(
                 new Object[][]{
+                    // Privileges test
+                    {"grant", false, false, false, false},
                     // Tests scenario where COLUMN type is modified.
                     {"modify_column_type", false, false, false, false},
                     // Tests scenario where CLUSTER is added to TABLE.

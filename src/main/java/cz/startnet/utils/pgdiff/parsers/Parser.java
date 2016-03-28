@@ -7,6 +7,8 @@ package cz.startnet.utils.pgdiff.parsers;
 
 import cz.startnet.utils.pgdiff.Resources;
 import java.text.MessageFormat;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Locale;
 
 /**
@@ -69,6 +71,7 @@ public final class Parser {
                 || Character.isWhitespace(string.charAt(wordEnd))
                 || string.charAt(wordEnd) == ';'
                 || string.charAt(wordEnd) == ')'
+                || string.charAt(wordEnd) == '('
                 || string.charAt(wordEnd) == ','
                 || string.charAt(wordEnd) == '['
                 || "(".equals(word) || ",".equals(word) || "[".equals(word)
@@ -511,5 +514,39 @@ public final class Parser {
         return position == string.length()
                 || position + 1 == string.length()
                 && string.charAt(position) == ';';
+    }
+
+    /**
+     * Parses comma-separated list of strings. Uses {@link #parseString()}
+     * to parse particular string.
+     *
+     * @return List of parsed strings.
+     */
+    public List<String> parseCommaSeparatedList() {
+        List<String> list = new ArrayList<String>();
+
+        list.add(parseString());
+        while (expectOptional(",")) {
+            list.add(parseString());
+        }
+
+        return list;
+    }
+
+    /**
+     * Parses comma-separated list of identifiers. Uses {@link #parseIdentifier()}
+     * to parse particular identifier.
+     *
+     * @return List of parsed identifiers.
+     */
+    public List<String> parseCommaSeparatedIdentifierList() {
+        List<String> list = new ArrayList<String>();
+
+        list.add(parseIdentifier());
+        while (expectOptional(",")) {
+            list.add(parseIdentifier());
+        }
+
+        return list;
     }
 }

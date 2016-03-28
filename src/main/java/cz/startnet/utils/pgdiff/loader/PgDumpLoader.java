@@ -130,17 +130,17 @@ public class PgDumpLoader { //NOPMD
             Pattern.CASE_INSENSITIVE | Pattern.DOTALL);
 
     /**
-     * Pattern for testing whether it is GRANT statement.
+     * Pattern for testing whether it is GRANT statement on DB object (not on Roles).
      */
-    private static final Pattern PATTERN_GRANT= Pattern.compile(
-            "^GRANT[\\s]+.*$",
+    private static final Pattern PATTERN_GRANT_ON_DB_OBJECT= Pattern.compile(
+            "^GRANT[\\s]+.*[\\s]+ON[\\s]+.*[\\s]+TO[\\s]+.*$",
             Pattern.CASE_INSENSITIVE | Pattern.DOTALL);
 
     /**
-     * Pattern for testing whether it is REVOKE statement.
+     * Pattern for testing whether it is REVOKE statement on DB object (not on Roles).
      */
-    private static final Pattern PATTERN_REVOKE= Pattern.compile(
-            "^REVOKE[\\s]+.*$",
+    private static final Pattern PATTERN_REVOKE_ON_DB_OBJECT= Pattern.compile(
+            "^REVOKE[\\s]+.*[\\s]+ON[\\s]+.*[\\s]+FROM[\\s]+.*$",
             Pattern.CASE_INSENSITIVE | Pattern.DOTALL);
 
     /**
@@ -209,13 +209,13 @@ public class PgDumpLoader { //NOPMD
             } else if (PATTERN_COMMENT.matcher(statement).matches()) {
                 CommentParser.parse(
                         database, statement, outputIgnoredStatements);
-            }  else if (PATTERN_GRANT.matcher(statement).matches()) {
+            }  else if (PATTERN_GRANT_ON_DB_OBJECT.matcher(statement).matches()) {
                 GrantParser.parse(database, statement);
             } else if (PATTERN_SELECT.matcher(statement).matches()
                     || PATTERN_INSERT_INTO.matcher(statement).matches()
                     || PATTERN_UPDATE.matcher(statement).matches()
                     || PATTERN_DELETE_FROM.matcher(statement).matches()
-                    || PATTERN_REVOKE.matcher(statement).matches()) {
+                    || PATTERN_REVOKE_ON_DB_OBJECT.matcher(statement).matches()) {
                 // we just ignore these statements
             } else if (outputIgnoredStatements) {
                 database.addIgnoredStatement(statement);

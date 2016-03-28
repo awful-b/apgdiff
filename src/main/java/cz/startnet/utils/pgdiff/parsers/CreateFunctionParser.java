@@ -10,6 +10,8 @@ import cz.startnet.utils.pgdiff.schema.PgDatabase;
 import cz.startnet.utils.pgdiff.schema.PgFunction;
 import cz.startnet.utils.pgdiff.schema.PgSchema;
 import java.text.MessageFormat;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Parses CREATE FUNCTION and CREATE OR REPLACE FUNCTION statements.
@@ -46,55 +48,19 @@ public class CreateFunctionParser {
         function.setName(ParserUtils.getObjectName(functionName));
         schema.addFunction(function);
 
+        for (PgFunction.Argument argument : parseArguments(parser))
+            function.addArgument(argument);
+
+        function.setBody(parser.getRest());
+    }
+
+    public static List<PgFunction.Argument> parseArguments(final Parser parser) {
         parser.expect("(");
 
+        List<PgFunction.Argument> arguments = new ArrayList<PgFunction.Argument>();
+
         while (!parser.expectOptional(")")) {
-            final String mode;
-
-            if (parser.expectOptional("IN")) {
-                mode = "IN";
-            } else if (parser.expectOptional("OUT")) {
-                mode = "OUT";
-            } else if (parser.expectOptional("INOUT")) {
-                mode = "INOUT";
-            } else if (parser.expectOptional("VARIADIC")) {
-                mode = "VARIADIC";
-            } else {
-                mode = null;
-            }
-
-            final int position = parser.getPosition();
-            String argumentName = null;
-            String dataType = parser.parseDataType();
-
-            final int position2 = parser.getPosition();
-
-            if (!parser.expectOptional(")") && !parser.expectOptional(",")
-                    && !parser.expectOptional("=")
-                    && !parser.expectOptional("DEFAULT")) {
-                parser.setPosition(position);
-                argumentName =
-                        ParserUtils.getObjectName(parser.parseIdentifier());
-                dataType = parser.parseDataType();
-            } else {
-                parser.setPosition(position2);
-            }
-
-            final String defaultExpression;
-
-            if (parser.expectOptional("=")
-                    || parser.expectOptional("DEFAULT")) {
-                defaultExpression = parser.getExpression();
-            } else {
-                defaultExpression = null;
-            }
-
-            final PgFunction.Argument argument = new PgFunction.Argument();
-            argument.setDataType(dataType);
-            argument.setDefaultExpression(defaultExpression);
-            argument.setMode(mode);
-            argument.setName(argumentName);
-            function.addArgument(argument);
+            arguments.add(parseArgument(parser));
 
             if (parser.expectOptional(")")) {
                 break;
@@ -103,7 +69,57 @@ public class CreateFunctionParser {
             }
         }
 
-        function.setBody(parser.getRest());
+        return arguments;
+    }
+
+    private static PgFunction.Argument parseArgument(final Parser parser) {
+        final String mode;
+
+        if (parser.expectOptional("IN")) {
+            mode = "IN";
+        } else if (parser.expectOptional("OUT")) {
+            mode = "OUT";
+        } else if (parser.expectOptional("INOUT")) {
+            mode = "INOUT";
+        } else if (parser.expectOptional("VARIADIC")) {
+            mode = "VARIADIC";
+        } else {
+            mode = null;
+        }
+
+        final int position = parser.getPosition();
+        String argumentName = null;
+        String dataType = parser.parseDataType();
+
+        final int position2 = parser.getPosition();
+
+        if (!parser.expectOptional(")") && !parser.expectOptional(",")
+                && !parser.expectOptional("=")
+                && !parser.expectOptional("DEFAULT")) {
+            parser.setPosition(position);
+            argumentName =
+                    ParserUtils.getObjectName(parser.parseIdentifier());
+            dataType = parser.parseDataType();
+        } else {
+            parser.setPosition(position2);
+        }
+
+        final String defaultExpression;
+
+        if (parser.expectOptional("=")
+                || parser.expectOptional("DEFAULT")) {
+            defaultExpression = parser.getExpression();
+        } else {
+            defaultExpression = null;
+        }
+
+        final PgFunction.Argument argument = new PgFunction.Argument();
+        argument.setDataType(dataType);
+        argument.setDefaultExpression(defaultExpression);
+        argument.setMode(mode);
+        argument.setName(argumentName);
+
+        return argument;
     }
 
     /**

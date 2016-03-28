@@ -6,6 +6,8 @@
 package cz.startnet.utils.pgdiff.schema;
 
 import cz.startnet.utils.pgdiff.PgDiffUtils;
+import cz.startnet.utils.pgdiff.privileges.PgPrivilege;
+
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -463,5 +465,9 @@ public class PgSchema {
      */
     public boolean containsView(final String name) {
         return getView(name) != null;
+    }
+
+
+    public void addPrivilege(final PgPrivilege privilege) {
     }
 }

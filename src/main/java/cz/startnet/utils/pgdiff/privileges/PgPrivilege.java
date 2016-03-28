@@ -5,18 +5,16 @@
  */
 package cz.startnet.utils.pgdiff.privileges;
 
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
 
 /**
  * Base class for privileges.
  */
 public class PgPrivilege {
     /**
-     * Privilege types.
+     * PrivilegeType types.
      */
-    public enum Privilege {
+    public enum PrivilegeType {
         select,
         insert,
         update,
@@ -31,48 +29,71 @@ public class PgPrivilege {
         usage,
         all;
 
-        public static final Map<Privilege, String> stringRepresentation;
+        public static final Map<PrivilegeType, List<String>> stringRepresentation;
 
         static {
-            Map<Privilege, String> aMap = new HashMap<Privilege, String>();
-            aMap.put(Privilege.select, "SELECT");
-            aMap.put(Privilege.insert, "INSERT");
-            aMap.put(Privilege.update, "UPDATE");
-            aMap.put(Privilege.delete, "DELETE");
-            aMap.put(Privilege.truncate, "TRUNCATE");
-            aMap.put(Privilege.references, "REFERENCES");
-            aMap.put(Privilege.trigger, "TRIGGER");
-            aMap.put(Privilege.create, "CREATE");
-            aMap.put(Privilege.connect, "CONNECT");
-            aMap.put(Privilege.temporary, "TEMPORARY");
-            aMap.put(Privilege.execute, "EXECUTE");
-            aMap.put(Privilege.usage, "USAGE");
-            aMap.put(Privilege.all, "ALL");
+            Map<PrivilegeType, List<String>> aMap = new HashMap<PrivilegeType, List<String>>();
+            aMap.put(PrivilegeType.select, Arrays.asList("SELECT"));
+            aMap.put(PrivilegeType.insert, Arrays.asList("INSERT"));
+            aMap.put(PrivilegeType.update, Arrays.asList("UPDATE"));
+            aMap.put(PrivilegeType.delete, Arrays.asList("DELETE"));
+            aMap.put(PrivilegeType.truncate, Arrays.asList("TRUNCATE"));
+            aMap.put(PrivilegeType.references, Arrays.asList("REFERENCES"));
+            aMap.put(PrivilegeType.trigger, Arrays.asList("TRIGGER"));
+            aMap.put(PrivilegeType.create, Arrays.asList("CREATE"));
+            aMap.put(PrivilegeType.connect, Arrays.asList("CONNECT"));
+            aMap.put(PrivilegeType.temporary, Arrays.asList("TEMPORARY", "TEMP"));
+            aMap.put(PrivilegeType.execute, Arrays.asList("EXECUTE"));
+            aMap.put(PrivilegeType.usage, Arrays.asList("USAGE"));
+            aMap.put(PrivilegeType.all, Arrays.asList("ALL", "ALL PRIVILEGES"));
 
             stringRepresentation = Collections.unmodifiableMap(aMap);
         }
     }
 
     /**
-     * Privilege type.
+     * PrivilegeType type.
      */
-    private Privilege privilege;
+    private PrivilegeType privilegeType;
 
     /**
-     * Getter for {@link #privilege}.
-     *
-     * @return {@link #privilege}
+     * Name of database object the privilegeType is granted on.
      */
-    public Privilege getPrivilege() {
-        return privilege;
+    private String databaseObjectName;
+
+    /**
+     * Getter for {@link #privilegeType}.
+     *
+     * @return {@link #privilegeType}
+     */
+    public PrivilegeType getPrivilegeType() {
+        return privilegeType;
     }
 
     /**
-     * Setter for {@link #privilege}.
+     * Setter for {@link #privilegeType}.
      *
-     * @param privilege {@link #privilege}
+     * @param privilegeType {@link #privilegeType}
      */
-    public void setPrivilege(Privilege privilege) {
-        this.privilege = privilege;
+    public void setPrivilegeType(PrivilegeType privilegeType) {
+        this.privilegeType = privilegeType;
+    }
+
+    /**
+     * Getter for {@link #databaseObjectName}.
+     *
+     * @return {@link #databaseObjectName}
+     */
+    public String getDatabaseObjectName() {
+        return databaseObjectName;
+    }
+
+    /**
+     * Setter for {@link #databaseObjectName}.
+     *
+     * @param databaseObjectName {@link #databaseObjectName}
+     */
+    public void setDatabaseObjectName(String databaseObjectName) {
+        this.databaseObjectName = databaseObjectName;
     }
 }
